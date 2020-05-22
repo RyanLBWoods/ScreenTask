@@ -1,9 +1,11 @@
 # ScreenTask
 CV/ML Engineer test
 ## Clone and Install
-#### The framework used was Pytorch 1.5.0
-        $ git clone 
+#### The framework used was PyTorch 1.5.0 (current stable version)
+        $ pip install torch torchvision
+        $ git clone https://github.com/RyanLBWoods/ScreenTask.git
 ## Test Usage
+please modify the following code in your script to run test
 ```python
 infer = simpleInfer()
 model_path = 'model_path'
