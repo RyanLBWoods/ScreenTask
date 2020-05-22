@@ -5,6 +5,7 @@ from torch.autograd import Variable
 from torch.optim import Adam
 from torch.nn import CrossEntropyLoss
 from torch.nn.functional import log_softmax
+from torchvision import transforms
 from classifier import simpleClassifier
 from data_loader import dataloader
 
@@ -41,11 +42,12 @@ def test(model, test_loader, criterion, epoch):
     :param test_loader: DataLoader, a data loader of the testing dataset
     :param criterion: loss function
     :param epoch: current epoch of the training process
-    :return: None
+    :return acc: float, the accuracy on test set
     """
     model.eval()
     test_loss = 0
     correct = 0
+    pre_acc = 0
     with torch.no_grad():
         for imgs, targets in test_loader:
             imgs, targets = Variable(imgs), Variable(targets)
@@ -56,7 +58,8 @@ def test(model, test_loader, criterion, epoch):
             correct += pred.eq(targets.view_as(pred)).sum().item()
     test_loss /= len(test_loader)
     acc = 100. * correct / len(test_loader.dataset)
-    print('Epoch {}: Test Loss: {:.4f}, Test Accuracy: {}'.format(epoch + 1, test_loss, acc))
+    print(' Epoch {}: Test Loss: {:.4f}, Test Accuracy: {}'.format(epoch + 1, test_loss, acc))
+    return acc
 
 
 if __name__ == '__main__':
@@ -66,19 +69,22 @@ if __name__ == '__main__':
     test_img_path = './t10k-images-idx3-ubyte'
     test_label_path = './t10k-labels-idx1-ubyte'
     # Initiate data loader
-    train_data = data.DataLoader(dataloader(img_path, label_path), batch_size=256, shuffle=True)
-    test_data = data.DataLoader(dataloader(test_img_path, test_label_path), batch_size=256, shuffle=True)
+    train_data = data.DataLoader(dataloader(img_path, label_path), batch_size=512, shuffle=True)
+    test_data = data.DataLoader(dataloader(test_img_path, test_label_path), batch_size=512, shuffle=True)
     # Initiate training parameters
-    # model = simpleClassifier()
-    model = torch.load('./simpleClassifier_20.pth')
+    model = simpleClassifier()
+    # model = torch.load('./simpleClassifier2_20.pth')
+    # torch.save(model.state_dict(), './simpleClsfier_20.pth')
     optimizer = Adam(model.parameters())
     criterion = CrossEntropyLoss()
-    epochs = 20
+    epochs = 50
+    pre_acc = 0
+    acc = 0
     # Train
     for epoch in range(epochs):
         train(model, train_data, criterion=criterion, optimizer=optimizer, epoch=epoch)
-        # Save the model per 5 epochs
-        if (epoch + 1) % 5 == 0:
-            torch.save(model, './simpleClassifier_{}.pth'.format(epoch + 21))
-
-        test(model, test_data, criterion, epoch)
+        # Save the model if test accuracy increase
+        acc = test(model, test_data, criterion, epoch)
+        if acc > pre_acc:
+            torch.save(model, './simpleClsifierZ_{}-{}.pth'.format(epoch + 1, acc))
+            pre_acc = acc
