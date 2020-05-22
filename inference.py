@@ -1,7 +1,6 @@
 import torch
-import torch.utils.data as data
-from torch.autograd import Variable
 from torch.nn.functional import log_softmax
+import torch.utils.data as data
 from classifier import simpleClassifier
 from data_loader import dataloader
 
