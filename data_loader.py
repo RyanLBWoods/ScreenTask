@@ -4,17 +4,26 @@ import struct
 
 
 class dataloader(data.Dataset):
-    def __init__(self, img_path, label_path):
+    def __init__(self, img_path, label_path, transform=None):
+        """
+        Initiate data loader
+        :param img_path: str, path of data set
+        :param label_path: str, path of label
+        :param transform: torchvision.transform, transform functions in torchvision.transform
+        """
         super(dataloader, self).__init__()
         self.img_path = img_path
         self.label_path = label_path
         self.imgs = self.load_imgs(self.img_path)
         self.labels = self.load_labels(self.label_path)
+        self.transform = transform
 
     def __getitem__(self, index):
         img = self.imgs[index]
         label = self.labels[index]
         img = img.unsqueeze(0)
+        if self.transform:
+            img = self.transform(img)
         return img, label
 
     def __len__(self):
@@ -41,6 +50,4 @@ class dataloader(data.Dataset):
             idx = struct.calcsize('>II')
             lb_str = '>' + str(num_labels) + 'B'
             labels = struct.unpack_from(lb_str, data_buf, idx)
-        # labels = torch.LongTensor(labels)
-        # labels = one_hot(labels, 10)
         return labels
