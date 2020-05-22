@@ -5,7 +5,7 @@ CV/ML Engineer test
         $ pip install torch torchvision
         $ git clone https://github.com/RyanLBWoods/ScreenTask.git
 ## Test Usage
-please modify the following code in your script to run test
+Please modify the following code in your script to run test
 ```python
 infer = simpleInfer()
 model_path = 'model_path'
